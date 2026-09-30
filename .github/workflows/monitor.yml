@@ -1,0 +1,32 @@
+
+name: Twitter Monitor
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: twitter-monitor
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      - name: Install deps
+        run: pip install -r requirements.txt
+      - name: Run monitor
+        env:
+          SORSA_API_KEY: ${{ secrets.SORSA_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          GH_GIST_TOKEN: ${{ secrets.GH_GIST_TOKEN }}
+          GIST_ID: ${{ secrets.GIST_ID }}
+          TWITTER_ACCOUNTS: ${{ secrets.TWITTER_ACCOUNTS }}
+        run: python monitor.py
