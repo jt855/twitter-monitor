@@ -14,12 +14,17 @@ def load_state() -> dict:
     """从 Gist 读取状态。"""
     resp = requests.get(GIST_API, headers=HEADERS, timeout=15)
     resp.raise_for_status()
-    content = resp.json()["files"][GIST_FILENAME]["content"]
+    files = resp.json().get("files", {})
+    if not files:
+        return {}
+    # 自动获取第一个文件的内容
+    first_file = list(files.values())[0]
+    content = first_file.get("content", "")
     return json.loads(content) if content.strip() else {}
 
 
 def save_state(state: dict) -> None:
-    """写回 Gist。"""
+    """写回 Gist（自动更新第一个文件，如果不存在则创建 state.json）。"""
     payload = {
         "files": {
             GIST_FILENAME: {
