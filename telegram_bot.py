@@ -50,20 +50,17 @@ HELP_TEXT = (
 )
 
 
-def process_updates(offset, subscribers: list) -> tuple[int | None, list, list]:
-    """
-    处理 Telegram 消息，返回 (新 offset, 更新后的订阅者列表, 新订阅者列表)。
-    """
+def process_updates(offset, subscribers):
     updates = get_updates(offset)
     if not updates:
-        return offset, subscribers, []
+        return offset, subscribers, []  # 如果 Telegram 没有新消息，直接返回
 
     subscribers = list(subscribers)
     newly_subscribed = []
     last_update_id = offset
 
     for upd in updates:
-        last_update_id = upd["update_id"] + 1
+        last_update_id = upd["update_id"] + 1  # 极其重要：更新已读取的 ID，避免重复读取
         msg = upd.get("message")
         if not msg or "text" not in msg:
             continue
