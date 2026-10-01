@@ -7,7 +7,7 @@ from telegram_bot import (
     process_updates,
     send_message,
     format_tweet,
-    HELP_TEXT,
+    
 )
 
 
@@ -18,15 +18,8 @@ def main():
     offset = state.get("update_offset")
 
     # ===== 1. 处理订阅命令 =====
-    offset, subscribers, newly = process_updates(offset, subscribers)
+    offset, subscribers, _ = process_updates(offset, subscribers)
 
-    # 首次有订阅者时，发一条欢迎（可选）
-    if newly and not state.get("bootstrapped"):
-        for chat_id in newly:
-            send_message(
-                chat_id,
-                "🚀 机器人已就绪，开始为你监控推文。\n\n" + HELP_TEXT,
-            )
 
     # ===== 2. 拉取推文并推送 =====
     total_sent = 0
@@ -77,7 +70,6 @@ def main():
             "subscribers": subscribers,
             "last_seen_ids": last_seen,
             "update_offset": offset,
-            "bootstrapped": True,
             "last_run": int(time.time()),
         }
     )
